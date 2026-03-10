@@ -1,0 +1,5 @@
+j'utilise nginx pour le serveur web et j'utilise postgreSQL pour la base de donné
+
+j'ai activé les service nginx, postgresql, angelo-cd
+
+l'rfid du badge de angelo havard est C164C101

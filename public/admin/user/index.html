@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Interface d'admin</title>
+        <meta name="description" content="Description de ma page web" />
+        <link rel="stylesheet" href="/main.css" />
+        <link rel="icon" href="/main.ico" />
+    </head>
+
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="/">Accueil</a></li>
+                    <li>
+                        <a id="openAdminInterface">Interface administrateur</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <section id="headerOfUserSection">
+                <h2 id="titleOfUser">Firstname Lastname</h2>
+                <p id="isAdmin"></p>
+                <button id="deleteUser" class="delete">
+                    suprimé l'utilisateur
+                </button>
+            </section>
+            <section id="badgeDivOfUser">
+                <h2>badges</h2>
+                <div>
+                    <ul id="badges"></ul>
+                </div>
+                <button class="add" id="addBadge">ajouté</button>
+            </section>
+            <section>
+                <h2>logs d'accès</h2>
+                <div>
+                    <ul id="logs"></ul>
+                </div>
+            </section>
+        </main>
+        <script src="/main.js"></script>
+        <script src="./index.js"></script>
+    </body>
+</html>

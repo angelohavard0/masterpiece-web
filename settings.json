@@ -1,0 +1,28 @@
+{
+    "server": {
+        "port": 3000
+    },
+    "arduino": {
+        "login": [
+            {
+                "token": "token de arduino 1",
+                "isAdmin": true
+            },
+            {
+                "token": "token de simulateur 1",
+                "isAdmin": true
+            },
+            {
+                "token": "token de arduino 3",
+                "isAdmin": false
+            }
+        ]
+    },
+    "database": {
+        "ip": "127.0.0.1",
+        "port": 5432,
+        "user": "dbcduser",
+        "password": "ZmqGKrs9sTantWz",
+        "database": "dbcd"
+    }
+}

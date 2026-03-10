@@ -1,0 +1,2 @@
+-- ajouté une option pour re-verouillé l'interface admin depuit le navigateur
+-- faire le code arduino pour le scanner rfid des arduino du prof.

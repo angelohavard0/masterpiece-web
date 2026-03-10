@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Simulation Scan RFID</title>
+</head>
+<body>
+<h2>Simuler un scan RFID</h2>
+
+<input type="text" id="uid" placeholder="UID du badge">
+<button onclick="sendScan()">Scanner</button>
+
+<p id="result"></p>
+<div>
+    <h2>ma liste d'rfid</h2>
+    <ul>
+        <li>C164C101</li>
+        <li>faux_badge_1</li>
+        <li>faux_badge_2</li>
+        <li>faux_badge_3</li>
+    </ul>
+</div>
+
+<script>
+async function sendScan() {
+    const uid = document.getElementById("uid").value;
+    const result = document.getElementById("result");
+
+    if (!uid) {
+        result.textContent = "UID manquant";
+        return;
+    }
+
+    try {
+        const res = await fetch("http://127.0.0.1/access", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer token de simulateur 1"
+            },
+            body: JSON.stringify({ UID: uid })
+        });
+
+        if (res.status === 200) {
+            result.textContent = "Accès autorisé";
+        } else if (res.status === 401) {
+            result.textContent = "Accès refusé";
+        } else {
+            result.textContent = "Erreur serveur";
+        }
+
+    } catch (err) {
+        result.textContent = "Erreur réseau";
+        console.error(err);
+    }
+}
+</script>
+
+</body>
+</html>
