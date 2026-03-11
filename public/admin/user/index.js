@@ -184,15 +184,23 @@ async function initUserPage() {
     }
 })();
 
-const source = new EventSource("/notifAccesLog");
+let source;
 
-source.onmessage = () => {
-    loadLogs(params);
-};
+function connectSSE() {
+    source = new EventSource("/notifAccesLog");
 
-source.onerror = (err) => {
-    console.error("Erreur SSE :", err);
-};
+    source.onmessage = () => {
+        loadLogs(params);
+    };
+
+    source.onerror = (err) => {
+        console.error("Erreur SSE :", err);
+        source.close();
+        setTimeout(connectSSE, 3000);
+    };
+}
+
+connectSSE();
 
 const openAdminInterfaceButton = document.getElementById("openAdminInterface");
 openAdminInterfaceButton.addEventListener("click", async () => {

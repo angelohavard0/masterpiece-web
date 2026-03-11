@@ -1,5 +1,5 @@
 import express from "express";
-//import path from "path";
+import path from "path";
 import { readFile } from "fs/promises";
 import pkg from "pg";
 const { Pool } = pkg;
@@ -62,11 +62,11 @@ db.get = function (route, sql, required = []) {
             for (const field of required) {
                 if (args[field] === undefined) {
                     return res.status(400).json({
-                        error: `${field} manquante`
+                        error: `${field} manquante`,
                     });
                 }
             }
-            const values = required.map(k => args[k]);
+            const values = required.map((k) => args[k]);
             const result = await db.run(sql, values);
 
             if (result.err) {
@@ -74,7 +74,6 @@ db.get = function (route, sql, required = []) {
             }
 
             res.json(result.res.rows);
-
         } catch {
             res.sendStatus(500);
         }
@@ -95,11 +94,11 @@ db.post = function (route, sql, required = []) {
             for (const field of required) {
                 if (args[field] === undefined) {
                     return res.status(400).json({
-                        error: `${field} manquante`
+                        error: `${field} manquante`,
                     });
                 }
             }
-            const values = required.map(k => args[k]);
+            const values = required.map((k) => args[k]);
             const result = await db.run(sql, values);
 
             if (result.err) {
@@ -107,7 +106,6 @@ db.post = function (route, sql, required = []) {
             }
 
             res.json(result.res.rows ?? result.res);
-            
         } catch {
             res.sendStatus(500);
         }
@@ -133,11 +131,11 @@ db.delete = function (route, sql, required = []) {
             for (const field of required) {
                 if (args[field] === undefined) {
                     return res.status(400).json({
-                        error: `${field} manquante`
+                        error: `${field} manquante`,
                     });
                 }
             }
-            const values = required.map(k => args[k]);
+            const values = required.map((k) => args[k]);
             const result = await db.run(sql, values);
 
             if (result.err) {
@@ -145,7 +143,6 @@ db.delete = function (route, sql, required = []) {
             }
 
             res.json(result.res.rows ?? result.res);
-
         } catch {
             res.sendStatus(500);
         }
@@ -156,12 +153,12 @@ const app = express();
 
 app.use(express.json());
 
-//const publicPath = path.join(process.cwd(), "public");
-//app.use(express.static(publicPath));
+const publicPath = path.join(process.cwd(), "public");
+app.use(express.static(publicPath));
 
 // variable
 const isConnected = {
-    value: false
+    value: false,
 };
 
 app.get("/isConnected", (req, res) => {
@@ -308,14 +305,12 @@ app.get("/getAccesslogs", async (req, res) => {
 db.get(
     "/getBadgesByUser_id",
     "SELECT * FROM badge WHERE isdeleted = 0 AND user_id = $1",
-    ["user_id"]
+    ["user_id"],
 );
 
-db.get(
-    "/getUserById",
-    "SELECT * FROM users WHERE isdeleted = 0 AND id = $1",
-    ["id"]
-);
+db.get("/getUserById", "SELECT * FROM users WHERE isdeleted = 0 AND id = $1", [
+    "id",
+]);
 
 db.get(
     "/getAccesslogsByUser_id",
@@ -331,7 +326,7 @@ db.get(
     ORDER BY a.date DESC
     LIMIT $2
     `,
-    ["id", "number"]
+    ["id", "number"],
 );
 
 db.get(
@@ -344,32 +339,28 @@ db.get(
     ORDER BY date DESC
     LIMIT $2
     `,
-    ["query", "number"]
+    ["query", "number"],
 );
 
 db.post(
     "/addBadgesByUser_idAndRfid",
     "INSERT INTO badge (rfid, user_id) VALUES ($1, $2)",
-    ["rfid", "user_id"]
+    ["rfid", "user_id"],
 );
 
 db.post(
     "/addUser",
     "INSERT INTO users (firstname, lastname, isadmin) VALUES ($1, $2, $3)",
-    ["firstname", "lastname", "isadmin"]
+    ["firstname", "lastname", "isadmin"],
 );
 
-db.delete(
-    "/deleteBadgesById",
-    "UPDATE badge SET isdeleted = 1 WHERE id = $1",
-    ["id"]
-);
+db.delete("/deleteBadgesById", "UPDATE badge SET isdeleted = 1 WHERE id = $1", [
+    "id",
+]);
 
-db.delete(
-    "/deleteUsersById",
-    "UPDATE users SET isdeleted = 1 WHERE id = $1",
-    ["id"]
-);
+db.delete("/deleteUsersById", "UPDATE users SET isdeleted = 1 WHERE id = $1", [
+    "id",
+]);
 
 app.listen(settings.server.port, () => {
     console.log(`Serveur lancé sur http://localhost:${settings.server.port}`);

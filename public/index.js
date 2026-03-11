@@ -22,15 +22,25 @@ getAccesslogs();
 
 
 
-const source = new EventSource("/notifAccesLog");
+let source;
 
-source.onmessage = () => {
-    getAccesslogs();
-};
+function connectSSE() {
+    source = new EventSource("/notifAccesLog");
 
-source.onerror = (err) => {
-    console.error("Erreur SSE :", err);
-};
+    source.onmessage = () => {
+        getAccesslogs();
+    };
+
+    source.onerror = (err) => {
+        console.error("Erreur SSE :", err);
+        source.close(); // ferme la connexion actuelle
+        // relancer après 3 secondes
+        setTimeout(connectSSE, 3000);
+    };
+}
+
+// lancer la première connexion
+connectSSE();
 
 
 

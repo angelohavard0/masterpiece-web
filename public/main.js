@@ -49,14 +49,14 @@ function formatDateFR(dateStr) {
     date.setHours(date.getHours() + 1);
 
     // Options pour le format français
-    let options = { 
-        weekday: 'long',
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric', 
-        hour: '2-digit', 
-        minute: '2-digit'
+    let options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
     };
 
-    return date.toLocaleString('fr-FR', options);
+    return date.toLocaleString("fr-FR", options);
 }
