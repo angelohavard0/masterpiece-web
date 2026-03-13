@@ -153,12 +153,12 @@ const app = express();
 
 app.use(express.json());
 
-const publicPath = path.join(process.cwd(), "public");
+const publicPath = path.join(process.cwd(), "publicV2");
 app.use(express.static(publicPath));
 
 // variable
 const isConnected = {
-    value: false,
+    value: true,
 };
 
 app.get("/isConnected", (req, res) => {
@@ -285,10 +285,29 @@ app.get("/getAccesslogs", async (req, res) => {
         b.rfid,
         a.log,
         a.date
-        from AccessLogs a
+        from accesslogs a
         join badge b on a.badge_id = b.id
         join users u on b.user_id = u.id
         order by a.date desc
+        limit $1;
+    `,
+        [500],
+    );
+    if (result.res?.rows !== undefined) {
+        res.json(result.res.rows);
+    } else {
+        res.status(500).json(result.err);
+    }
+});
+
+app.get("/getFailedAccesslogs", async (req, res) => {
+    const result = await db.run(
+        `
+        select 
+        rfid,
+        date
+        from FailedAccessLogs
+        order by date desc
         limit $1;
     `,
         [500],

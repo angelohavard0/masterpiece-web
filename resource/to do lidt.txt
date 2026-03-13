@@ -1,0 +1,10 @@
+-- implementé les acces refusé au niveau de backent
+-- l'implementé ensuite au frontendV2
+-- faire fonctionné corectement les genre de pastille au coté des button de navigation
+-- implementé les route de statistique au backent
+-- l'implementé ensuite sur le front end frontendV2
+-- regle le probleme de style avec la div de statistique des badge sur /admin
+-- ne plus consaillé de maitre une UID dans la bare de recherche
+
+-- ajouté une option pour re-verouillé l'interface admin depuit le navigateur
+-- faire le code arduino pour le scanner rfid des arduino du prof.

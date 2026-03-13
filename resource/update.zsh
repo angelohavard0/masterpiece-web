@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-SOURCE="/home/angelo/Documents/coure/chef_d_euvre/v2/web/pc/public"
+SOURCE="/home/angelo/Documents/coure/chef_d_euvre/v2/web/pc/publicV2"
 DEST="/var/www/html"
 
 # Parcours tous les fichiers

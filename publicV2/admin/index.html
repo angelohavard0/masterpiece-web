@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gestion Badges - Administration</title>
+        <link rel="stylesheet" href="/main.css" />
+        <link rel="stylesheet" href="index.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="app">
+            <div class="sidebar">
+                <div class="logo">
+                    <i class="fa-solid fa-school"></i>
+                    <div>
+                        <span class="lycee">Lycée R. Queneau</span
+                        ><span class="sous-titre">Yvetot</span>
+                    </div>
+                </div>
+                <div class="sidebar-menu">
+                    <button onclick="window.location.href = '/'" id="btnLogs">
+                        <i class="fa-solid fa-clock"></i><span>Logs</span>
+                    </button>
+                    <button
+                        onclick="window.location.href = '/admin/'"
+                        class="active"
+                        id="btnAdmin"
+                    >
+                        <i class="fa-solid fa-users-gear"></i
+                        ><span>Gestion</span
+                        ><span class="badge" id="usersBadge">0</span>
+                    </button>
+                </div>
+                <div class="system-info">
+                    <div class="info-item">
+                        <i class="fa-solid fa-qrcode"></i><span>RFID</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fa-solid fa-clock"></i
+                        ><span id="liveTime"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="main">
+                <div class="header">
+                    <h1>Administration</h1>
+                    <div class="header-stats">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-user-graduate"></i
+                            ><span id="totalUsers">0</span
+                            ><small>Membres</small>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-id-card"></i
+                            ><span id="totalBadges">0</span
+                            ><small>Badges</small>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-user-tie"></i
+                            ><span id="totalAdmins">0</span
+                            ><small>Administrateurs</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="admin" class="tab">
+                    <div class="card">
+                        <h2>
+                            <i class="fa-solid fa-user-plus"></i> Ajouter un
+                            membre
+                        </h2>
+                        <form id="userForm" class="form-grid">
+                            <div class="input-group">
+                                <i class="fa-solid fa-user"></i
+                                ><input
+                                    type="text"
+                                    id="firstname"
+                                    placeholder="Prénom"
+                                    required
+                                />
+                            </div>
+                            <div class="input-group">
+                                <i class="fa-solid fa-user"></i
+                                ><input
+                                    type="text"
+                                    id="lastname"
+                                    placeholder="Nom"
+                                    required
+                                />
+                            </div>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="isAdmin" />
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <span>Administrateur</span>
+                                </label>
+                            </div>
+                            <button
+                                type="submit"
+                                id="addUserBtn"
+                                class="btn-primary"
+                            >
+                                <i class="fa-solid fa-plus"></i>Ajouter
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h2>
+                            <i class="fa-solid fa-search"></i> Rechercher un
+                            membre
+                        </h2>
+                        <div class="search-bar">
+                            <div class="input-group">
+                                <i class="fa-solid fa-search"></i
+                                ><input
+                                    type="text"
+                                    id="searchUser"
+                                    placeholder="Nom, prénom ou UID..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2>
+                            <i class="fa-solid fa-users"></i> Résultats de
+                            recherche
+                        </h2>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Prénom</th>
+                                        <th>Nom</th>
+                                        <th>Badges</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTable"></tbody>
+                            </table>
+                        </div>
+                        <div id="noUsersMessage" class="empty-message">
+                            <i class="fa-solid fa-users-slash"></i> Aucun
+                            résultat
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/main.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>

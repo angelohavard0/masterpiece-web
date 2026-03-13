@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gestion Badges - Accueil</title>
+        <link rel="stylesheet" href="/main.css" />
+        <link rel="stylesheet" href="index.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="app">
+            <div class="sidebar">
+                <div class="logo">
+                    <i class="fa-solid fa-school"></i>
+                    <div>
+                        <span class="lycee">Lycée R. Queneau</span
+                        ><span class="sous-titre">Yvetot</span>
+                    </div>
+                </div>
+                <div class="sidebar-menu">
+                    <button
+                        onclick="showTab('logs')"
+                        class="active"
+                        id="btnLogs"
+                    >
+                        <i class="fa-solid fa-clock"></i><span>Logs</span
+                        ><span class="badge" id="logsBadge">0</span>
+                    </button>
+                    <button
+                        onclick="window.location.href = '/admin/'"
+                        id="btnAdmin"
+                    >
+                        <i class="fa-solid fa-users-gear"></i
+                        ><span>Gestion</span
+                        ><span class="badge" id="usersBadge">0</span>
+                    </button>
+                </div>
+                <div class="system-info">
+                    <div class="info-item">
+                        <i class="fa-solid fa-qrcode"></i><span>RFID</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fa-solid fa-clock"></i
+                        ><span id="liveTime"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="main">
+                <div class="header">
+                    <h1>Tableau de bord</h1>
+                    <div class="header-stats">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-user-graduate"></i
+                            ><span id="totalUsers">0</span
+                            ><small>Membres</small>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-clock-rotate-left"></i
+                            ><span id="totalLogs">0</span><small>Accès</small>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-triangle-exclamation"></i
+                            ><span id="failedLogs">0</span
+                            ><small>Refusés</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="logs" class="tab">
+                    <div class="card">
+                        <h2>
+                            <i class="fa-solid fa-list-check"></i> Historique
+                        </h2>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="color-box success-bg"></div>
+                                <span>Autorisé</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box error-bg"></div>
+                                <span>Refusé</span>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Prénom</th>
+                                        <th>UID</th>
+                                        <th>Date</th>
+                                        <th>Heure</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logsTable"></tbody>
+                            </table>
+                        </div>
+                        <div id="noLogsMessage" class="empty-message hidden">
+                            <i class="fa-solid fa-clock"></i> Aucun passage
+                        </div>
+                    </div>
+                </div>
+                <div id="admin" class="tab hidden">
+                    <div class="card">
+                        <h2><i class="fa-solid fa-user-plus"></i> Ajouter</h2>
+                        <form id="userForm" class="form-grid">
+                            <div class="input-group">
+                                <i class="fa-solid fa-user"></i
+                                ><input
+                                    type="text"
+                                    id="firstname"
+                                    placeholder="Prénom"
+                                    required
+                                />
+                            </div>
+                            <div class="input-group">
+                                <i class="fa-solid fa-user"></i
+                                ><input
+                                    type="text"
+                                    id="lastname"
+                                    placeholder="Nom"
+                                    required
+                                />
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="fa-solid fa-plus"></i>Ajouter
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h2><i class="fa-solid fa-users"></i> Membres</h2>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Prénom</th>
+                                        <th>Badges</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTable"></tbody>
+                            </table>
+                        </div>
+                        <div id="noUsersMessage" class="empty-message hidden">
+                            <i class="fa-solid fa-users-slash"></i> Aucun membre
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/main.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>
