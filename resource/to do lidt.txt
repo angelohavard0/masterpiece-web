@@ -5,6 +5,7 @@
 -- l'implementé ensuite sur le front end frontendV2
 -- regle le probleme de style avec la div de statistique des badge sur /admin
 -- ne plus consaillé de maitre une UID dans la bare de recherche
+-- optenire les bibliotheque en local
 
 -- ajouté une option pour re-verouillé l'interface admin depuit le navigateur
 -- faire le code arduino pour le scanner rfid des arduino du prof.
