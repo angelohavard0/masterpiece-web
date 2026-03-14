@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Inter", sans-serif;
+    font-family: system-ui, "Segoe UI", "Noto Sans", Arial, sans-serif;
 }
 :root {
     --bg: #f5f7fa;
@@ -311,22 +311,6 @@ tr.error-row {
     background: var(--bg-e);
     border-left: 4px solid var(--error);
 }
-@media (max-width: 768px) {
-    .app {
-        flex-direction: column;
-    }
-    .sidebar {
-        width: 100%;
-        padding: 15px;
-    }
-    .header-stats {
-        grid-template-columns: 1fr;
-    }
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -344,4 +328,19 @@ tr.error-row {
     background: var(--bg2);
     color: var(--text);
     border: 1px solid var(--border);
+}
+@media (max-width: 768px) {
+    .app {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+    }
+    .header-stats {
+        grid-template-columns: 1fr;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
