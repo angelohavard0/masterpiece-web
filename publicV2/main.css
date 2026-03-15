@@ -16,6 +16,7 @@
     --error: #ef4444;
     --glow-s: rgba(16, 185, 129, 0.5);
     --glow-e: rgba(239, 68, 68, 0.5);
+    --glow-n: rgba(96, 165, 250, 0.5); /* AJOUT - pour le bleu */
     --bg-s: rgba(16, 185, 129, 0.1);
     --bg-e: rgba(239, 68, 68, 0.1);
 }
@@ -138,10 +139,31 @@ body {
     gap: 8px;
     border: 1px solid var(--border);
 }
-.stat-card i {
-    font-size: 24px;
+
+/* AJOUT - Couleurs spécifiques pour chaque compteur */
+.stat-card:nth-child(1) {
+    border-left: 4px solid #60a5fa;
+    box-shadow: 0 0 15px var(--glow-n);
+} /* Bleu */
+.stat-card:nth-child(2) {
+    border-left: 4px solid var(--success);
+    box-shadow: 0 0 15px var(--glow-s);
+} /* Vert */
+.stat-card:nth-child(3) {
+    border-left: 4px solid var(--error);
+    box-shadow: 0 0 15px var(--glow-e);
+} /* Rouge */
+
+.stat-card:nth-child(1) i {
     color: #60a5fa;
-}
+} /* Bleu */
+.stat-card:nth-child(2) i {
+    color: var(--success);
+} /* Vert */
+.stat-card:nth-child(3) i {
+    color: var(--error);
+} /* Rouge */
+
 .stat-card span {
     font-size: 28px;
     font-weight: 600;

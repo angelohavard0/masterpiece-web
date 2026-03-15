@@ -73,37 +73,33 @@ async function loadBadges() {
 }
 
 async function loadLogs() {
-    const tbody = document.getElementById("logsTable");
+    const tbody = document.getElementById('logsTable');
 
     try {
         const data = await fetchJson(
             `/getAccesslogsByUser_id?data=${encodeURIComponent(
                 JSON.stringify({
                     id: params.get("id"),
-                    number: 500,
-                }),
-            )}`,
+                    days: 30 // Toujours 30 jours
+                })
+            )}`
         );
 
         if (!data.length) {
-            tbody.innerHTML =
-                '<tr><td colspan="4" class="empty-message">Aucun passage</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-message">Aucun passage</td></tr>';
             return;
         }
 
-        tbody.innerHTML = data
-            .map(
-                (l) => `<tr class="success-row"> <!-- Toujours success-row -->
+        tbody.innerHTML = data.map(l => `<tr class="success-row">
             <td><code>${escapeHtml(l.rfid)}</code></td>
-            <td>${escapeHtml(new Date(l.date).toLocaleDateString("fr-FR"))}</td>
-            <td>${escapeHtml(new Date(l.date).toLocaleTimeString("fr-FR"))}</td>
+            <td>${escapeHtml(new Date(l.date).toLocaleDateString('fr-FR'))}</td>
+            <td>${escapeHtml(new Date(l.date).toLocaleTimeString('fr-FR'))}</td>
             <td><span style="color:var(--success)">
                 <i class="fa-solid fa-check-circle"></i> 
                 Autorisé
             </span></td>
-        </tr>`,
-            )
-            .join("");
+        </tr>`).join('');
+
     } catch (err) {
         console.error(err);
     }

@@ -1,4 +1,6 @@
 let users = [];
+let userStats = { total_users: 0, total_admins: 0 };
+let totalBadges = 0;
 
 function updateLiveTime() {
     const el = document.getElementById("liveTime");
@@ -11,6 +13,44 @@ function updateLiveTime() {
 }
 setInterval(updateLiveTime, 1000);
 updateLiveTime();
+
+async function getUserStats() {
+    try {
+        const data = await fetchJson(
+            `/getUserStats?data=${encodeURIComponent(JSON.stringify({}))}`,
+        );
+        if (data && data[0]) {
+            userStats = data[0];
+            updateStats();
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function getBadgeStats() {
+    try {
+        const data = await fetchJson(
+            `/getBadgeStats?data=${encodeURIComponent(JSON.stringify({}))}`,
+        );
+        if (data && data[0]) {
+            totalBadges = data[0].total_badges || 0;
+            updateStats();
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function updateStats() {
+    document.getElementById("totalUsers").textContent =
+        userStats.total_users || 0;
+    document.getElementById("totalAdmins").textContent =
+        userStats.total_admins || 0;
+    document.getElementById("totalBadges").textContent = totalBadges;
+    document.getElementById("usersBadge").textContent =
+        userStats.total_users || 0;
+}
 
 async function searchUsers(query) {
     const tbody = document.getElementById("usersTable");
@@ -55,9 +95,6 @@ async function searchUsers(query) {
         </tr>`,
             )
             .join("");
-
-        // Mettre à jour le badge de la sidebar
-        document.getElementById("usersBadge").textContent = users.length;
     } catch (err) {
         console.error(err);
     }
@@ -67,7 +104,6 @@ function viewUser(userId) {
     window.location.href = `/admin/user?id=${userId}`;
 }
 
-// Gestionnaire d'événement pour le formulaire d'ajout
 document
     .getElementById("userForm")
     .addEventListener("submit", async function (e) {
@@ -103,7 +139,11 @@ document
                 document.getElementById("userForm").reset();
                 document.getElementById("isAdmin").checked = false;
 
-                await searchUsers(document.getElementById("searchUser").value);
+                await Promise.all([
+                    getUserStats(),
+                    getBadgeStats(),
+                    searchUsers(document.getElementById("searchUser").value),
+                ]);
 
                 Swal.fire({
                     title: "Succès",
@@ -141,7 +181,7 @@ function escapeHtml(text) {
         return;
     }
 
-    await searchUsers("");
+    await Promise.all([getUserStats(), getBadgeStats(), searchUsers("")]);
 
     const searchUserInput = document.getElementById("searchUser");
     searchUserInput.addEventListener("input", () => {

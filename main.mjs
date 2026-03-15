@@ -169,8 +169,7 @@ isConnected.notifyConnected = () => {
     isConnected.value = true;
 };
 
-// route pour optenire le dergnier badge scanné
-
+// route pour obtenir le dernier badge scanné
 const getScannerRfid = {
     clients: [],
 };
@@ -198,8 +197,7 @@ getScannerRfid.notifyConnected = (rfid) => {
     getScannerRfid.clients = [];
 };
 
-// route pour aitre prevenu des acces badge
-
+// route pour être prévenu des accès badge
 const notifAccesLog = {
     clients: [],
 };
@@ -216,13 +214,13 @@ app.get("/notifAccesLog", (req, res) => {
     });
 });
 
-notifAccesLog.notifyConnected = (rfid) => {
+notifAccesLog.notifyConnected = () => {
     notifAccesLog.clients.forEach((res) => {
         res.write(`data: ${JSON.stringify("AccesLog")}\n\n`);
     });
 };
 
-// route pour activé l'interphace
+// route pour activer l'interface et logger les accès
 app.post("/access", async (req, res) => {
     try {
         const arduino = settings.arduino.login.find(
@@ -232,28 +230,39 @@ app.post("/access", async (req, res) => {
 
         getScannerRfid.notifyConnected(req.body.UID);
 
-        const result = await db.run(
-            `with found as (
-                select badge.id as badge_id, badge.rfid, users.isadmin
-                from badge
-                join users on badge.user_id = users.id
-                where badge.rfid = $1
-                and badge.isdeleted = 0
-                and users.isdeleted = 0
-            )
-            insert into accesslogs (log, badge_id)
-            select 'badge scanne', badge_id
-            from found
-            returning badge_id,
-                (select rfid from found) as rfid,
-                (select isadmin from found) as isadmin;`,
+        // Vérifier si le badge existe
+        const checkResult = await db.run(
+            `SELECT badge.id as badge_id, users.isadmin
+             FROM badge
+             JOIN users ON badge.user_id = users.id
+             WHERE badge.rfid = $1
+             AND badge.isdeleted = 0
+             AND users.isdeleted = 0`,
             [req.body.UID],
         );
 
-        if (result.err) return res.sendStatus(500);
+        const row = checkResult.res?.rows[0];
 
-        const row = result.res.rows[0];
-        if (!row) return res.sendStatus(401);
+        if (!row) {
+            // Badge inconnu ou supprimé → logger dans failedaccesslogs
+            await db.run(
+                "INSERT INTO failedaccesslogs (rfid) VALUES ($1)",
+                [req.body.UID],
+            );
+            
+            notifAccesLog.notifyConnected();
+            return res.sendStatus(401);
+        }
+
+        // Badge connu → logger dans accesslogs
+        const result = await db.run(
+            `INSERT INTO accesslogs (log, badge_id)
+             VALUES ('badge scanné', $1)
+             RETURNING badge_id`,
+            [row.badge_id],
+        );
+
+        if (result.err) return res.sendStatus(500);
 
         console.log("donné reçu:", req.body);
 
@@ -266,7 +275,7 @@ app.post("/access", async (req, res) => {
 
         if (login.adminLogin) {
             isConnected.notifyConnected();
-            console.log("interface administrateur deverouille");
+            console.log("interface administrateur déverrouillée");
         }
 
         res.sendStatus(200);
@@ -276,51 +285,40 @@ app.post("/access", async (req, res) => {
     }
 });
 
-app.get("/getAccesslogs", async (req, res) => {
-    const result = await db.run(
-        `
-        select 
+// Route pour les logs réussis (avec db.get)
+db.get(
+    "/getAccesslogs",
+    `
+    SELECT 
         u.firstname,
         u.lastname,
         b.rfid,
         a.log,
         a.date
-        from accesslogs a
-        join badge b on a.badge_id = b.id
-        join users u on b.user_id = u.id
-        order by a.date desc
-        limit $1;
+    FROM accesslogs a
+    JOIN badge b ON a.badge_id = b.id
+    JOIN users u ON b.user_id = u.id
+    WHERE a.date >= NOW() - ($1 || ' days')::interval
+    ORDER BY a.date DESC
     `,
-        [500],
-    );
-    if (result.res?.rows !== undefined) {
-        res.json(result.res.rows);
-    } else {
-        res.status(500).json(result.err);
-    }
-});
+    ["days"],
+);
 
-app.get("/getFailedAccesslogs", async (req, res) => {
-    const result = await db.run(
-        `
-        select 
+// Route pour les logs échoués (avec db.get)
+db.get(
+    "/getFailedAccesslogs",
+    `
+    SELECT 
         rfid,
         date
-        from FailedAccessLogs
-        order by date desc
-        limit $1;
+    FROM failedaccesslogs
+    WHERE date >= NOW() - ($1 || ' days')::interval
+    ORDER BY date DESC
     `,
-        [500],
-    );
-    if (result.res?.rows !== undefined) {
-        res.json(result.res.rows);
-    } else {
-        res.status(500).json(result.err);
-    }
-});
+    ["days"],
+);
 
-//route d'acsais a la db
-
+// routes d'accès à la db existantes
 db.get(
     "/getBadgesByUser_id",
     "SELECT * FROM badge WHERE isdeleted = 0 AND user_id = $1",
@@ -342,10 +340,10 @@ db.get(
     FROM accesslogs a
     JOIN badge b ON a.badge_id = b.id
     WHERE b.user_id = $1
+    AND a.date >= NOW() - ($2 || ' days')::interval
     ORDER BY a.date DESC
-    LIMIT $2
     `,
-    ["id", "number"],
+    ["id", "days"],
 );
 
 db.get(
@@ -353,7 +351,7 @@ db.get(
     `
     SELECT *
     FROM users
-    WHERE (firstname LIKE '%' || $1 || '%' OR lastname LIKE '%' || $1 || '%')
+    WHERE (firstname ILIKE '%' || $1 || '%' OR lastname ILIKE '%' || $1 || '%')
     AND isdeleted = 0
     ORDER BY date DESC
     LIMIT $2
@@ -380,6 +378,27 @@ db.delete("/deleteBadgesById", "UPDATE badge SET isdeleted = 1 WHERE id = $1", [
 db.delete("/deleteUsersById", "UPDATE users SET isdeleted = 1 WHERE id = $1", [
     "id",
 ]);
+
+db.get(
+    "/getUserStats",
+    `
+    SELECT 
+        COUNT(*) FILTER (WHERE isdeleted = 0) as total_users,
+        COUNT(*) FILTER (WHERE isdeleted = 0 AND isadmin = 1) as total_admins
+    FROM users
+    `,
+    [] // Pas de paramètres requis
+);
+
+db.get(
+    "/getBadgeStats",
+    `
+    SELECT COUNT(*) as total_badges
+    FROM badge
+    WHERE isdeleted = 0
+    `,
+    [] // Pas de paramètres requis
+);
 
 app.listen(settings.server.port, () => {
     console.log(`Serveur lancé sur http://localhost:${settings.server.port}`);

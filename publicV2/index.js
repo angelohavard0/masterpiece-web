@@ -1,4 +1,7 @@
 let logs = [];
+let failedLogs = [];
+let userStats = { total_users: 0, total_admins: 0 };
+let totalBadges = 0;
 
 const logsTable = document.getElementById("logsTable");
 const noLogsMessage = document.getElementById("noLogsMessage");
@@ -27,44 +30,148 @@ function showTab(tab) {
     }
 }
 
-async function getAccesslogs() {
+async function getUserStats() {
     try {
-        const data = await fetchJson("/getAccesslogs");
-        logs = data;
-        displayLogs();
-        updateBadges();
+        const data = await fetchJson(
+            `/getUserStats?data=${encodeURIComponent(JSON.stringify({}))}`,
+        );
+        if (data && data[0]) {
+            userStats = data[0];
+            updateStats();
+        }
     } catch (err) {
         console.error(err);
     }
 }
 
+async function getBadgeStats() {
+    try {
+        const data = await fetchJson(
+            `/getBadgeStats?data=${encodeURIComponent(JSON.stringify({}))}`,
+        );
+        if (data && data[0]) {
+            totalBadges = data[0].total_badges || 0;
+            updateStats();
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function getAccesslogs() {
+    try {
+        const data = await fetchJson(
+            `/getAccesslogs?data=${encodeURIComponent(
+                JSON.stringify({ days: 30 }),
+            )}`,
+        );
+        logs = data;
+        displayLogs();
+        updateStats();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function getFailedAccesslogs() {
+    try {
+        const data = await fetchJson(
+            `/getFailedAccesslogs?data=${encodeURIComponent(
+                JSON.stringify({ days: 30 }),
+            )}`,
+        );
+        failedLogs = data;
+        displayLogs();
+        updateStats();
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
+}
+
 function displayLogs() {
     if (!logsTable) return;
-    if (logs.length === 0) {
+
+    // Combiner les deux types de logs
+    const allLogs = [];
+
+    // Ajouter les logs réussis avec leurs infos
+    logs.forEach((l) => {
+        allLogs.push({
+            firstname: l.firstname || "-",
+            lastname: l.lastname || "-",
+            rfid: l.rfid,
+            date: l.date,
+            status: "success",
+            log: l.log,
+        });
+    });
+
+    // Ajouter les logs refusés (sans prénom/nom)
+    failedLogs.forEach((l) => {
+        allLogs.push({
+            firstname: "-",
+            lastname: "-",
+            rfid: l.rfid,
+            date: l.date,
+            status: "error",
+            log: "Badge inconnu",
+        });
+    });
+
+    // Trier par date décroissante
+    allLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (allLogs.length === 0) {
         logsTable.innerHTML = "";
         noLogsMessage?.classList.remove("hidden");
         return;
     }
+
     noLogsMessage?.classList.add("hidden");
-    logsTable.innerHTML = logs
+    logsTable.innerHTML = allLogs
         .map(
-            (l) => `<tr class="success-row"> <!-- Toujours success-row -->
-        <td>${escapeHtml(l.lastname || "-")}</td>
-        <td>${escapeHtml(l.firstname || "-")}</td>
-        <td><code>${escapeHtml(l.rfid || l.uid)}</code></td>
+            (
+                l,
+            ) => `<tr class="${l.status === "success" ? "success-row" : "error-row"}">
+        <td>${escapeHtml(l.lastname)}</td>
+        <td>${escapeHtml(l.firstname)}</td>
+        <td><code>${escapeHtml(l.rfid)}</code></td>
         <td>${escapeHtml(new Date(l.date).toLocaleDateString("fr-FR"))}</td>
         <td>${escapeHtml(new Date(l.date).toLocaleTimeString("fr-FR"))}</td>
-        <td><span style="color:var(--success);font-weight:500">
-            <i class="fa-solid fa-check-circle"></i> 
-            Autorisé
+        <td><span style="color:${l.status === "success" ? "var(--success)" : "var(--error)"};font-weight:500">
+            <i class="fa-solid fa-${l.status === "success" ? "check-circle" : "exclamation-circle"}"></i> 
+            ${l.status === "success" ? "Autorisé" : "Refusé"}
         </span></td>
     </tr>`,
         )
         .join("");
 }
 
-function updateBadges() {
-    logsBadge && (logsBadge.textContent = logs.length);
+function updateStats() {
+    // Mettre à jour les compteurs dans /index
+    const totalUsersEl = document.getElementById("totalUsers");
+    const totalLogsEl = document.getElementById("totalLogs");
+    const failedLogsEl = document.getElementById("failedLogs");
+
+    if (totalUsersEl) {
+        // Total membres = admins + non-admins
+        const totalMembers = parseInt(userStats.total_users) || 0;
+        totalUsersEl.textContent = totalMembers;
+    }
+
+    if (totalLogsEl) {
+        totalLogsEl.textContent = logs.length;
+    }
+
+    if (failedLogsEl) {
+        failedLogsEl.textContent = failedLogs.length;
+    }
+
+    // Mettre à jour le badge de la sidebar
+    if (logsBadge) {
+        logsBadge.textContent = logs.length + failedLogs.length;
+    }
 }
 
 function escapeHtml(text) {
@@ -82,6 +189,7 @@ function connectSSE() {
 
     source.onmessage = () => {
         getAccesslogs();
+        getFailedAccesslogs();
     };
 
     source.onerror = (err) => {
@@ -93,6 +201,11 @@ function connectSSE() {
 
 // Initialisation
 (async () => {
-    await getAccesslogs();
+    await Promise.all([
+        getUserStats(),
+        getBadgeStats(),
+        getAccesslogs(),
+        getFailedAccesslogs(),
+    ]);
     connectSSE();
 })();
