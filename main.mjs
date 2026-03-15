@@ -158,7 +158,7 @@ app.use(express.static(publicPath));
 
 // variable
 const isConnected = {
-    value: true,
+    value: false,
 };
 
 app.get("/isConnected", (req, res) => {
