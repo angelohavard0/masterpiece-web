@@ -46,8 +46,6 @@ db.run = async function (sql, args) {
 db.get = function (route, sql, required = []) {
     app.get(route, async (req, res) => {
         try {
-            if (!isConnected) return res.sendStatus(401);
-
             if (req.query.data === undefined)
                 return res.status(400).json({ error: "data manquante" });
 
@@ -83,7 +81,7 @@ db.get = function (route, sql, required = []) {
 db.post = function (route, sql, required = []) {
     app.post(route, async (req, res) => {
         try {
-            if (!isConnected) return res.sendStatus(401);
+            if (!isConnected.value) return res.sendStatus(401);
 
             if (!req.body || Object.keys(req.body).length === 0)
                 return res.status(400).json({ error: "body manquant" });
@@ -115,7 +113,7 @@ db.post = function (route, sql, required = []) {
 db.delete = function (route, sql, required = []) {
     app.delete(route, async (req, res) => {
         try {
-            if (!isConnected) return res.sendStatus(401);
+            if (!isConnected.value) return res.sendStatus(401);
 
             if (req.query.data === undefined)
                 return res.status(400).json({ error: "data manquante" });
